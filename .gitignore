@@ -1,0 +1,10 @@
+# Claude Code 로컬 설정(기기별)
+.claude/settings.local.json
+
+# Office 임시/잠금 파일
+~$*
+*.tmp
+
+# OS
+Thumbs.db
+.DS_Store
