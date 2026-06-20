@@ -57,6 +57,9 @@ textarea#notes{width:100%;min-height:140px;border:1px solid var(--line);border-r
 .acc .dt{font-family:var(--mono);font-size:11.5px;color:var(--accent);font-weight:700;margin-top:2px}
 .acc .memo{font-size:11.5px;color:var(--muted);margin-top:5px;line-height:1.4}
 .acc .maplink{margin-top:6px}
+.daymapbar{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px}
+.daymapbar a{font-weight:800;white-space:nowrap}
+.daymap{width:100%;height:240px;border:0;border-radius:12px;display:block;background:#e8e8e8}
 .foot{margin-top:26px;background:var(--text);color:#fff;border-radius:12px;padding:16px;font-size:12.5px}.foot a{color:#fff;font-weight:800}
 input[type=file]{display:none}
 </style>
@@ -78,6 +81,7 @@ input[type=file]{display:none}
 
  <h2 class="sec-h">🗓 일정</h2>
  <div class="daytabs" id="daytabs"></div>
+ <div id="daymapwrap"></div>
  <div id="daybody"></div>
 
  <h2 class="sec-h">📝 메모</h2>
@@ -115,6 +119,29 @@ function touch(){clearTimeout(t); const el=document.getElementById('save'); el.t
   t=setTimeout(save,400)}
 function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 function openMap(q){if(!q)return;window.open('https://www.google.com/maps/dir/?api=1&destination='+encodeURIComponent(q)+'&travelmode=transit','_blank')}
+function dayMapURL(day){
+ const pts=day.rows.map(r=>r.map||r.place).filter(Boolean);
+ const uniq=[];pts.forEach(p=>{if(uniq[uniq.length-1]!==p)uniq.push(p)});
+ if(!uniq.length)return null;
+ if(uniq.length===1){
+  const q=encodeURIComponent(uniq[0]);
+  return{embed:'https://www.google.com/maps?q='+q+'&output=embed',full:'https://www.google.com/maps/search/?api=1&query='+q};
+ }
+ const origin=uniq[0],dest=uniq[uniq.length-1],waypoints=uniq.slice(1,-1);
+ const saddr=encodeURIComponent(origin);
+ const daddr=uniq.slice(1).map(p=>encodeURIComponent(p)).join('+to:');
+ const embed='https://www.google.com/maps?saddr='+saddr+'&daddr='+daddr+'&output=embed';
+ const full='https://www.google.com/maps/dir/?api=1&origin='+saddr+'&destination='+encodeURIComponent(dest)+
+  (waypoints.length?'&waypoints='+waypoints.map(p=>encodeURIComponent(p)).join('%7C'):'')+'&travelmode=transit';
+ return{embed,full};
+}
+function renderMap(){
+ const day=state.days[curDay];const wrap=document.getElementById('daymapwrap');
+ const m=dayMapURL(day);
+ if(!m){wrap.innerHTML='';return}
+ wrap.innerHTML='<div class="daymapbar"><span>🗺 '+esc(day.area)+' 경로</span><a href="'+m.full+'" target="_blank" rel="noopener">전체화면 ↗</a></div>'+
+  '<iframe class="daymap" src="'+m.embed+'" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>';
+}
 function setMode(v){viewMode=v;document.getElementById('mode').textContent=viewMode?'✏️ 편집':'👁 보기';document.getElementById('editonly').style.display=viewMode?'none':'flex';document.getElementById('viewnote').style.display=viewMode?'':'none';document.getElementById('editnote').style.display=viewMode?'none':'';renderDay()}
 
 state = load() || JSON.parse(JSON.stringify(INITIAL));
@@ -127,6 +154,7 @@ function renderTabs(){
 }
 function renderDay(){
  const d=state.days[curDay]; const w=document.getElementById('daybody'); w.innerHTML='';
+ renderMap();
  if(viewMode){
   d.rows.forEach(r=>{
    const div=document.createElement('div');div.className='vrow';
