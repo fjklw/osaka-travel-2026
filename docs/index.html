@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>오사카 6박7일 트립 가이드 (2026.06.21~27)</title>
+<style>
+  :root {
+    --bg: #f5f3ef;
+    --card: #ffffff;
+    --accent: #c0392b;
+    --accent2: #2c7a7b;
+    --text: #2b2b2b;
+    --muted: #7a7a7a;
+    --border: #e6e1d8;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+  header {
+    background: linear-gradient(135deg, var(--accent), #8e2a1f);
+    color: #fff;
+    padding: 28px 16px 20px;
+    text-align: center;
+  }
+  header h1 { margin: 0 0 6px; font-size: 1.4rem; }
+  header p { margin: 0; opacity: 0.9; font-size: 0.9rem; }
+
+  nav#dayTabs {
+    display: flex;
+    overflow-x: auto;
+    gap: 6px;
+    padding: 10px 10px;
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    -webkit-overflow-scrolling: touch;
+  }
+  nav#dayTabs button {
+    flex: 0 0 auto;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  nav#dayTabs button.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+
+  main { max-width: 720px; margin: 0 auto; padding: 16px; }
+
+  .day-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 4px 0 14px;
+    color: var(--accent);
+  }
+
+  .timeline { position: relative; padding-left: 22px; }
+  .timeline::before {
+    content: "";
+    position: absolute;
+    left: 5px;
+    top: 6px;
+    bottom: 6px;
+    width: 2px;
+    background: var(--border);
+  }
+
+  .stop { position: relative; margin-bottom: 16px; }
+  .stop::before {
+    content: "";
+    position: absolute;
+    left: -22px;
+    top: 4px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent2);
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 2px var(--accent2);
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+  }
+  .card .time {
+    font-weight: 700;
+    color: var(--accent2);
+    font-size: 0.85rem;
+  }
+  .card .place {
+    font-weight: 700;
+    margin: 2px 0 4px;
+    font-size: 1rem;
+  }
+  .card .activity {
+    font-size: 0.92rem;
+    margin-bottom: 6px;
+    line-height: 1.4;
+  }
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .meta-row span.tag {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 2px 8px;
+  }
+  .memo {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-top: 4px;
+    line-height: 1.4;
+  }
+
+  .day-summary {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 16px;
+    font-size: 0.85rem;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+  }
+  .day-summary b { color: var(--text); }
+
+  footer {
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--muted);
+    padding: 24px 16px 40px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🗾 오사카 6박7일 여행 가이드</h1>
+  <p>2026.06.21 (일) ~ 06.27 (토) · 혼자 여행 · 오사카 · 교토 · 고베 · 비와호</p>
+</header>
+
+<nav id="dayTabs"></nav>
+<main id="content"></main>
+
+<footer>
+  경로·이동수단 데이터는 <code>docs/일본여행_계획표_최종.xlsx</code>의 "요일별 일정" 시트를 기준으로 합니다.
+</footer>
+
+<script>
+const itinerary = [
+  {
+    day: "Day1", date: "06.21 (일)", title: "간사이공항 입국 → 우메다 야경",
+    stops: [
+      { time: "09:20→10:55", place: "간사이공항(KIX)", activity: "입국·짐 찾기·ICOCA 충전 (TW S3LWJ4)", move: "—", cost: 0, memo: "와이파이 / Visit Japan Web" },
+      { time: "~12:30", place: "호스텔 오크(후쿠시마)", activity: "호스텔 오크 짐 보관 (짐보관 서비스 요청 완료)", move: "JR 간사이공항쾌속", cost: 1210, memo: "후쿠시마역 직통(오사카역 옆) · 코인로커 불필요 / 체크인 14시~" },
+      { time: "13:30", place: "차야마치 일대(우메다)", activity: "🎌 차야마치 오시 페스티벌(회유형) · 우메다 이동", move: "도보(15분)", cost: 0, memo: "후쿠시마→우메다 도보 15분 또는 JR 1정거장(160) / ~18:00·무료" },
+      { time: "15:30", place: "닌텐도·포켓몬센터(우메다)", activity: "🎮 닌텐도 OSAKA·포켓몬센터 오사카 (한정굿즈)", move: "도보", cost: 0, memo: "다이마루 우메다 13F·10~20시 / 차야마치서 도보 7분 · 마리오·포켓몬 한정굿즈" },
+      { time: "16:30", place: "HEP FIVE(차야마치)", activity: "🎡 HEP FIVE 빨간 관람차·점프숍", move: "도보", cost: 1000, memo: "차야마치 옆 랜드마크 관람차 ¥1,000(11~23시) + 점프숍(원피스·귀멸)" },
+      { time: "17:30", place: "나카자키초", activity: "🚶 나카자키초 레트로 골목 산책 (카페·빈티지·골목 아트)", move: "지하철/도보", cost: 0, memo: "우메다서 도보 15분 또는 지하철 한 정거장 · 조용한 인디 골목·사진 명소" },
+      { time: "18:30", place: "그랑프론트·한큐삼번가", activity: "저녁", move: "도보", cost: 3000, memo: "동선 짧음" },
+      { time: "20:00", place: "우메다 스카이빌딩", activity: "🌃 야경 — 공중정원 전망대 (확정)", move: "도보", cost: 2000, memo: "9:30~22:30 · 성인 2,000엔 / JR오사카역 도보 7분" },
+      { time: "21:30", place: "우메다→호스텔", activity: "호스텔 오크 복귀·체크인", move: "도보", cost: 0, memo: "후쿠시마역 / 짐 이미 맡겨둠" },
+    ]
+  },
+  {
+    day: "Day2", date: "06.22 (월)", title: "오사카성 · 시텐노지 · 도톤보리",
+    stops: [
+      { time: "09:30", place: "오사카성", activity: "오사카성·천수각 관람", move: "지하철", cost: 600, memo: "입장료(주유패스 무료)" },
+      { time: "12:00", place: "오사카성 인근", activity: "점심", move: "도보", cost: 1200, memo: "" },
+      { time: "14:00", place: "시텐노지", activity: "⛩️ 시텐노지 (오사카 最古 사찰)·오층탑·정원", move: "지하철", cost: 0, memo: "주유패스 무료(중심가람·정원) · 고요한 참배 / 오사카성서 남쪽" },
+      { time: "16:30", place: "도톤보리", activity: "🚤 도톤보리 리버크루즈·미나미 산책", move: "도보", cost: 0, memo: "주유패스 무료 보트(약20분)·운하서 글리코사인" },
+      { time: "19:00", place: "도톤보리", activity: "🍢 도톤보리 저녁 — 타코야키·오코노미야키·구시카츠 길거리 먹부림", move: "도보", cost: 3000, memo: "글리코사인 앞·에비스바시 일대" },
+      { time: "20:30", place: "도톤보리·우라난바", activity: "🌃 도톤보리 야간 — 글리코 네온·운하 + GiGO 게임센터·우라난바 골목", move: "도보", cost: 0, memo: "도톤보리다운 밤: 네온·크레인게임(GiGO 심야)·이자카야 골목 / 글리코 반영 운하" },
+    ]
+  },
+  {
+    day: "Day3", date: "06.23 (화)", title: "후시미이나리 · 비와호 · 기온",
+    stops: [
+      { time: "08:00", place: "우메다→교토", activity: "호스텔 오크 체크아웃·교토 이동·산티아고GH 짐보관", move: "JR/한큐", cost: 580, memo: "체크인15시~·도착 즉시 짐보관" },
+      { time: "09:20", place: "후시미이나리", activity: "🦊 후시미이나리타이샤(천본도리이)", move: "JR나라선", cost: 300, memo: "여우신사·무료 / 이른 오전 한산·교토역서 왕복" },
+      { time: "11:00", place: "비와호(시라히게)", activity: "⛩️ 시라히게 신사 — 비와호 위 도리이", move: "JR 코세이선", cost: 1460, memo: "교토→오미타카시마 약50분(¥860)·역서 자전거15분/합승택시¥300·호수 도리이 / ⚠국도161 횡단주의" },
+      { time: "13:20", place: "비와코 테라스(전망대)", activity: "🌅 비와코 테라스 — 로프웨이·1,100m 비와호 절경·점심", move: "코세이선+버스+로프웨이", cost: 8620, memo: "시가역→버스¥390→로프웨이왕복¥5,000 · 6/23 강수0% 절경·웹 사전할인권 / 흐리면 생략" },
+      { time: "17:30", place: "교토 복귀", activity: "가와라마치·폰토초 저녁", move: "코세이선", cost: 2500, memo: "시가→교토 약50분·숙소 체크인" },
+      { time: "20:00", place: "폰토초·기온", activity: "🌃 기온·폰토초·가모강변 야간 산책", move: "도보", cost: 0, memo: "기온 골목→폰토초→가모강 / ⚠기온 사유지 골목 촬영금지" },
+    ]
+  },
+  {
+    day: "Day4", date: "06.24 (수)", title: "아라시야마 · 기요미즈데라",
+    stops: [
+      { time: "09:00", place: "아라시야마", activity: "🎋 치쿠린(대나무숲)·도게쓰교", move: "한큐/란덴", cost: 240, memo: "아침 일찍 추천" },
+      { time: "11:00", place: "아라시야마", activity: "텐류지 정원", move: "도보", cost: 500, memo: "입장료" },
+      { time: "13:00", place: "아라시야마", activity: "점심", move: "도보", cost: 1500, memo: "" },
+      { time: "15:00", place: "기요미즈데라", activity: "청수사(기요미즈데라)", move: "버스/전철", cost: 500, memo: "입장료" },
+      { time: "16:30", place: "산넨자카·니넨자카", activity: "옛 돌계단 거리·기온", move: "도보", cost: 0, memo: "기념품·찻집" },
+      { time: "19:00", place: "가와라마치", activity: "저녁", move: "도보", cost: 2500, memo: "" },
+      { time: "20:30", place: "가와라마치·기온", activity: "🌃 가와라마치·가모강·교토 도심 밤거리 산책", move: "도보", cost: 0, memo: "가모강변 분위기·교토 도심" },
+    ]
+  },
+  {
+    day: "Day5", date: "06.25 (목)", title: "고베 — 기타노이진칸 · 하버랜드",
+    stops: [
+      { time: "09:30", place: "교토→고베", activity: "산티아고GH 체크아웃·고베 이동", move: "JR신쾌속", cost: 1110, memo: "약 50분" },
+      { time: "11:00", place: "산노미야", activity: "캡슐호텔 짐 보관", move: "도보", cost: 0, memo: "남성 전용 / 체크인" },
+      { time: "11:30", place: "기타노이진칸", activity: "이진칸(서양관) 거리 산책", move: "도보", cost: 0, memo: "" },
+      { time: "13:00", place: "산노미야", activity: "점심 — 고베규!", move: "도보", cost: 4000, memo: "고베규 스테이크" },
+      { time: "15:00", place: "하버랜드·메리켄파크", activity: "🌀 모자이크 대관람차(스즈메 성지)·포트타워", move: "도보", cost: 1000, memo: "「스즈메의 문단속」 관람차 성지 · 하버랜드역(JR고베역) 인근" },
+      { time: "18:00", place: "고베", activity: "🌃 고베 하버랜드·모자이크 야경 (저녁)", move: "도보", cost: 3000, memo: "" },
+      { time: "19:30", place: "산노미야", activity: "🌃 산노미야 밤거리 산책", move: "도보", cost: 0, memo: "" },
+    ]
+  },
+  {
+    day: "Day6", date: "06.26 (금)", title: "오사카 — 신세카이 · 쿠로몬시장 · 난바",
+    stops: [
+      { time: "09:30", place: "고베→오사카", activity: "캡슐호텔 체크아웃·오사카 이동", move: "한신/JR", cost: 410, memo: "약 40분" },
+      { time: "10:30", place: "오사카", activity: "Kimi to Ichigo 짐 보관", move: "도보", cost: 0, memo: "체크인 준비" },
+      { time: "11:30", place: "신세카이", activity: "쓰텐카쿠·구시카쓰 점심", move: "지하철", cost: 2000, memo: "" },
+      { time: "14:00", place: "쿠로몬 시장(닛폰바시)", activity: "🦐 쿠로몬 시장 — '오사카의 부엌' 길거리 먹거리·구경", move: "지하철", cost: 1500, memo: "신선 해산물·와규 꼬치·과일 / 입장무료+간식 / 신세카이~난바 사이 동선 좋음 (대부분 ~17시 마감)" },
+      { time: "17:00", place: "난바·미나미", activity: "⛩️ 난바 야사카 신사·호젠지요코초 (옛 골목·신사)", move: "지하철", cost: 0, memo: "거대 사자머리 신전·물 끼얹는 부동명왕 / 무료·도보권" },
+      { time: "19:00", place: "난바", activity: "저녁", move: "도보", cost: 3000, memo: "" },
+      { time: "20:30", place: "신세카이·우라난바", activity: "🌃 신세카이 쓰텐카쿠 야경·우라난바 (오사카)", move: "지하철", cost: 0, memo: "6/26 밤은 오사카(난바·신세카이)—고베 하버랜드는 6/25에 배치" },
+    ]
+  },
+  {
+    day: "Day7", date: "06.27 (토)", title: "마지막 쇼핑 → 귀국",
+    stops: [
+      { time: "09:00", place: "오사카(난바)", activity: "Kimi to Ichigo 체크아웃 후 숙소에 짐 보관", move: "—", cost: 0, memo: "난바 도보5분·코인로커 불필요 / 체크아웃 후 호스텔 짐 보관 가능" },
+      { time: "10:00", place: "신사이바시·도톤보리", activity: "🛍️ 마지막 쇼핑 — 기념품·드럭스토어·100엔샵·애니/오시 굿즈 한번에", move: "도보", cost: 5000, memo: "미뤄둔 쇼핑 몰아서 / 면세 시 여권 지참 / 도톤보리·신사이바시·닛폰바시" },
+      { time: "13:00", place: "난바", activity: "난바 점심 · 숙소에서 짐 회수", move: "도보", cost: 1500, memo: "Kimi to Ichigo 들러 짐 찾고 공항行" },
+      { time: "15:30", place: "난바→공항", activity: "간사이공항 이동", move: "난카이선", cost: 970, memo: "약 45분" },
+      { time: "~18:05", place: "간사이공항(KIX)", activity: "탑승수속 마감(18:05)·출국 (TW S3LWJ4)", move: "—", cost: 0, memo: "18:55 김해행 / 마감 50분 전" },
+    ]
+  },
+];
+
+const tabsEl = document.getElementById('dayTabs');
+const contentEl = document.getElementById('content');
+
+function fmtCost(n) {
+  return n > 0 ? `¥${n.toLocaleString()}` : '무료';
+}
+
+function renderDay(idx) {
+  const d = itinerary[idx];
+  const dayTotal = d.stops.reduce((sum, s) => sum + s.cost, 0);
+
+  [...tabsEl.children].forEach((btn, i) => btn.classList.toggle('active', i === idx));
+
+  const stopsHtml = d.stops.map(s => `
+    <div class="stop">
+      <div class="card">
+        <div class="time">${s.time}</div>
+        <div class="place">📍 ${s.place}</div>
+        <div class="activity">${s.activity}</div>
+        <div class="meta-row">
+          <span class="tag">🚃 ${s.move}</span>
+          <span class="tag">💴 ${fmtCost(s.cost)}</span>
+        </div>
+        ${s.memo ? `<div class="memo">${s.memo}</div>` : ''}
+      </div>
+    </div>
+  `).join('');
+
+  contentEl.innerHTML = `
+    <div class="day-title">${d.day} · ${d.date} — ${d.title}</div>
+    <div class="day-summary"><span>이 날 이동·활동 예상 비용</span><b>${fmtCost(dayTotal)}</b></div>
+    <div class="timeline">${stopsHtml}</div>
+  `;
+}
+
+itinerary.forEach((d, i) => {
+  const btn = document.createElement('button');
+  btn.textContent = `${d.day} ${d.date.split(' ')[0]}`;
+  btn.addEventListener('click', () => renderDay(i));
+  tabsEl.appendChild(btn);
+});
+
+renderDay(0);
+</script>
+
+</body>
+</html>

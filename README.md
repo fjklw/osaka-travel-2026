@@ -14,5 +14,6 @@
 휴대폰 브라우저에서 **claude.ai/code** 로 이 (비공개) 저장소를 열면, 이동 중에도 Claude와 함께 계획을 보고 수정할 수 있습니다.
 
 ## 연동 웹 페이지
-- 트립 가이드: https://claude.ai/code/artifact/14594761-271c-4815-b75b-144b557bac9b
+- 트립 가이드 (요일별 경로·이동수단·비용, 저장소 내 `docs/index.html`): https://fjklw.github.io/osaka-travel-2026/
+  - GitHub Pages 미설정 시 Settings → Pages → Source를 `main` 브랜치 `/docs` 폴더로 지정하면 위 주소로 열립니다.
 - 쇼핑 체크리스트: https://claude.ai/code/artifact/138dda12-9666-43e4-956d-7bd73b19da99
