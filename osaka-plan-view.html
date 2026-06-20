@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>오사카 여행 — 지도 보기</title>
+<style>
+:root{--ground:#F4F2EC;--paper:#fff;--text:#1B2330;--muted:#6E727B;--accent:#D6402F;--accent2:#1E4E68;--line:#1b23301f;--kr:"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR","Segoe UI",sans-serif;--mono:ui-monospace,"SF Mono",Consolas,monospace}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--text);font-family:var(--kr);line-height:1.5;-webkit-text-size-adjust:100%}
+.wrap{max-width:760px;margin:0 auto;padding:0 12px 90px}
+a{color:var(--accent2)}
+.bar{position:sticky;top:0;z-index:50;background:var(--text);color:#fff;margin:0 -12px;padding:9px 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.bar .t{font-weight:800;font-size:14px}.bar .t b{background:var(--accent);padding:1px 7px;border-radius:5px;margin-right:6px}
+.bar a.alt{margin-left:auto;font-size:12px;font-weight:700;color:#fff;background:#ffffff22;border-radius:8px;padding:5px 10px;text-decoration:none}
+.note{background:#fff;border-left:4px solid var(--accent2);border-radius:0 10px 10px 0;padding:9px 12px;font-size:12px;font-weight:600;margin:14px 0}
+.daytabs{display:flex;gap:6px;overflow-x:auto;padding:10px 0;-webkit-overflow-scrolling:touch;scrollbar-width:none}.daytabs::-webkit-scrollbar{display:none}
+.dtab{flex:0 0 auto;border:1.5px solid var(--line);background:var(--paper);border-radius:11px;padding:6px 11px;cursor:pointer;font:inherit;text-align:left;min-width:88px}
+.dtab .d{font-weight:900;font-size:13px}.dtab .dd{font-size:10.5px;color:var(--muted);font-weight:700}
+.dtab[aria-selected=true]{background:var(--text);border-color:var(--text)}.dtab[aria-selected=true] .d{color:#fff}.dtab[aria-selected=true] .dd{color:#fff9}
+.sec-h{font-size:18px;font-weight:900;margin:26px 0 10px;border-bottom:2px solid var(--text);padding-bottom:5px}
+.dayarea{font-size:12px;font-weight:800;color:var(--accent2);margin:4px 0 10px}
+.row{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:9px}
+.row .r1{display:flex;gap:8px;align-items:baseline}
+.row .time{font-family:var(--mono);font-weight:700;color:var(--accent);font-size:13px;white-space:nowrap}
+.row .place{font-weight:800;font-size:14.5px}
+.row .acts{margin-left:auto;display:flex;gap:5px;flex:0 0 auto}
+.row .acts a{border:1px solid var(--line);background:#1b23300d;border-radius:7px;padding:4px 8px;font-size:12px;font-weight:700;text-decoration:none;color:var(--text);white-space:nowrap}
+.row .acts a.dir{background:#1e4e681a;color:var(--accent2);border-color:transparent}
+.row .act{font-size:14px;font-weight:600;margin-top:5px}
+.row .memo{font-size:12px;color:var(--muted);margin-top:4px}
+.pass{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:9px 11px;margin-bottom:7px}
+.pass .top{display:flex;justify-content:space-between;gap:8px}.pass .nm{font-weight:800;font-size:13px}
+.pass .u{font-size:11.5px;color:var(--muted);margin-top:2px}
+.pass .map{font-size:11px;font-weight:800;color:var(--accent2);text-decoration:none;border:1px solid var(--accent2);border-radius:6px;padding:3px 8px;white-space:nowrap}
+.foot{margin-top:26px;background:var(--text);color:#fff;border-radius:12px;padding:16px;font-size:12.5px}.foot a{color:#fff;font-weight:800}
+</style>
+</head>
+<body>
+<div class="wrap">
+ <div class="bar">
+  <span class="t"><b>OSAKA</b>지도로 보기</span>
+  <a class="alt" href="osaka-plan-editable.html">✏️ 편집 모드</a>
+ </div>
+ <div class="note">📍 각 일정의 <b>지도보기</b>를 누르면 구글맵에서 위치를 바로 확인하고, <b>길찾기</b>를 누르면 이전 장소→해당 장소까지 대중교통 경로가 열립니다. (읽기 전용 — 내용 수정은 편집 모드에서)</div>
+
+ <h2 class="sec-h">🗓 일정</h2>
+ <div class="daytabs" id="daytabs"></div>
+ <div id="daybody"></div>
+
+ <h2 class="sec-h">🏨 숙소</h2>
+ <div id="lodging"></div>
+
+ <div class="foot">
+  📌 전체 맛집·명소는 <a href="https://claude.ai/code/artifact/14594761-271c-4815-b75b-144b557bac9b">트립 가이드</a> · 🛒 <a href="https://claude.ai/code/artifact/138dda12-9666-43e4-956d-7bd73b19da99">쇼핑 리스트</a><br>
+  💴 100엔≈920원 · 🆘 주오사카 총영사관 +81-6-4256-2345
+ </div>
+</div>
+<script src="osaka-data.js"></script>
+<script>
+let curDay=0;
+function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function mapsSearch(q){return 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q)}
+function mapsDir(o,dest){return 'https://www.google.com/maps/dir/?api=1&origin='+encodeURIComponent(o)+'&destination='+encodeURIComponent(dest)+'&travelmode=transit'}
+function loc(place,area){return (place||'')+(area?' '+area:'')+' 일본'}
+
+function renderTabs(){
+ const w=document.getElementById('daytabs'); w.innerHTML='';
+ INITIAL.days.forEach((d,i)=>{const b=document.createElement('button');b.className='dtab';b.setAttribute('aria-selected',i===curDay);
+  b.innerHTML='<div class="d">'+esc(d.day)+'</div><div class="dd">'+esc(d.date)+'</div>';
+  b.onclick=()=>{curDay=i;renderTabs();renderDay()};w.appendChild(b)});
+}
+function renderDay(){
+ const d=INITIAL.days[curDay]; const w=document.getElementById('daybody'); w.innerHTML='';
+ const area=document.createElement('div');area.className='dayarea';area.textContent='📍 '+d.area;w.appendChild(area);
+ d.rows.forEach((r,idx)=>{
+  const div=document.createElement('div');div.className='row';
+  const mapHref=mapsSearch(loc(r.place||r.act,d.area));
+  let dirBtn='';
+  if(idx>0){
+   const p=d.rows[idx-1];
+   dirBtn='<a class="dir" target="_blank" rel="noopener" href="'+mapsDir(loc(p.place||p.act,d.area),loc(r.place||r.act,d.area))+'">🧭 길찾기</a>';
+  }
+  div.innerHTML=
+   '<div class="r1"><span class="time">'+esc(r.time)+'</span><span class="place">'+esc(r.place)+'</span>'+
+   '<span class="acts"><a target="_blank" rel="noopener" href="'+mapHref+'">📍 지도보기</a>'+dirBtn+'</span></div>'+
+   '<div class="act">'+esc(r.act)+'</div>'+
+   (r.memo?'<div class="memo">'+esc(r.memo)+'</div>':'');
+  w.appendChild(div);
+ });
+}
+function renderLodging(){
+ document.getElementById('lodging').innerHTML=LODGING.map(p=>'<div class="pass"><div class="top"><span class="nm">'+esc(p[1])+'</span><a class="map" target="_blank" rel="noopener" href="'+mapsSearch(p[3])+'">📍 지도</a></div><div class="u">'+esc(p[0])+' · '+esc(p[2])+'</div></div>').join('');
+}
+renderTabs();renderDay();renderLodging();
+</script>
+</body>
+</html>
