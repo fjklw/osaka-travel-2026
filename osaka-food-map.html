@@ -71,10 +71,9 @@ function foodCard(label,item){
 function renderFood(){
  const d=INITIAL.days[curDay]; const f=FOOD[curDay]; const w=document.getElementById('foodbody'); w.innerHTML='';
  const area=document.createElement('div');area.className='dayarea';area.textContent='📍 '+d.area;w.appendChild(area);
- const groups=[["점심",f.lunch],["카페",f.cafe],["저녁",f.dinner]].filter(([,items])=>items&&items.length);
- if(groups.length===0&&!f.cocktail){const e=document.createElement('div');e.className='empty';e.textContent='이 날은 추천 맛집이 없습니다.';w.appendChild(e);return}
+ const groups=[["점심",f.lunch],["카페",f.cafe],["저녁",f.dinner],["칵테일",f.cocktail]].filter(([,items])=>items&&items.length);
+ if(groups.length===0){const e=document.createElement('div');e.className='empty';e.textContent='이 날은 추천 맛집이 없습니다.';w.appendChild(e);return}
  groups.forEach(([label,items])=>items.forEach((item,idx)=>w.appendChild(foodCard(idx===0?label:label+' 대안',item))));
- if(f.cocktail)w.appendChild(foodCard('칵테일',f.cocktail));
 }
 renderTabs();renderFood();
 </script>
