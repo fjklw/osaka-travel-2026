@@ -174,7 +174,7 @@ function foodCard(label,item){
 }
 function renderFood(){
  const f=FOOD[curDay]; const w=document.getElementById('foodbody'); w.innerHTML='';
- [["점심",f.lunch],["저녁",f.dinner]].forEach(([label,items])=>{
+ [["점심",f.lunch],["카페",f.cafe],["저녁",f.dinner]].forEach(([label,items])=>{
   if(!items||!items.length)return;
   items.forEach((item,idx)=>w.appendChild(foodCard(idx===0?label:label+' 대안',item)));
  });
